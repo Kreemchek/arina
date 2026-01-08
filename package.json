@@ -1,0 +1,32 @@
+{
+  "name": "personal-assistant-app",
+  "version": "1.0.0",
+  "description": "Личный ассистент современной девушки - SaaS MVP",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "bot"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../bot && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:bot\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:bot": "cd bot && npm run dev",
+    "build": "cd frontend && npm run build && cd ../backend && npm run build"
+  },
+  "keywords": [
+    "personal-assistant",
+    "saas",
+    "habits",
+    "goals",
+    "diary"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+

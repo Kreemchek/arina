@@ -1,0 +1,118 @@
+// Схема базы данных для личного ассистента
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Модель пользователя
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  telegramId    String?   @unique @map("telegram_id")
+  passwordHash  String    @map("password_hash")
+  premiumFlag   Boolean   @default(false) @map("premium_flag")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Связи
+  habits        Habit[]
+  diaryEntries  Diary[]
+  beautyTasks   Beauty[]
+  goals         Goal[]
+  progress      Progress[]
+
+  @@map("users")
+}
+
+// Модель привычки
+model Habit {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  type        String   // "daily", "weekly", "custom"
+  frequency   String   // "everyday", "weekdays", "weekends"
+  color       String   @default("#FFB6C1")
+  progress    Int      @default(0)
+  streak      Int      @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("habits")
+}
+
+// Модель дневника
+model Diary {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  date        DateTime @default(now())
+  mood        String   // "happy", "neutral", "sad", "anxious", "excited"
+  moodScore   Int      @default(5) @map("mood_score") // 1-10
+  notes       String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("diary_entries")
+}
+
+// Модель красоты и стиля
+model Beauty {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description String   @db.Text
+  category    String   // "skincare", "makeup", "hair", "nails", "style"
+  doneFlag    Boolean  @default(false) @map("done_flag")
+  dueDate     DateTime? @map("due_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("beauty_tasks")
+}
+
+// Модель целей
+model Goal {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description String?  @db.Text
+  steps       Json     @default("[]") // массив шагов
+  doneFlag    Boolean  @default(false) @map("done_flag")
+  deadline    DateTime?
+  category    String?  // "career", "health", "personal", "financial"
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}
+
+// Модель прогресса
+model Progress {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  date              DateTime @default(now())
+  completedHabits   Json     @default("[]") @map("completed_habits") // массив ID привычек
+  completedGoals    Json     @default("[]") @map("completed_goals")  // массив ID целей
+  moodScore         Int      @default(5) @map("mood_score")
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("progress")
+}
+
