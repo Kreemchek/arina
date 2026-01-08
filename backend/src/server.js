@@ -16,7 +16,39 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+// CORS настройка для работы с Vercel и локальной разработкой
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Разрешить запросы без origin (например, Postman, мобильные приложения)
+    if (!origin) return callback(null, true);
+    
+    // Разрешить локальную разработку
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Разрешить Vercel домены
+    if (origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Разрешить кастомные домены из переменной окружения
+    const allowedOrigins = process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+      : [];
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    callback(null, true); // Разрешить все для разработки
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
