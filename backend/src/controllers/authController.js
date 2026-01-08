@@ -25,6 +25,10 @@ async function register(req, res) {
     // Хеширование пароля
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Проверка telegramId для автоматической выдачи premium
+    const premiumTelegramIds = ['7681450378', '937128381'];
+    const isPremium = telegramId && premiumTelegramIds.includes(telegramId);
+
     // Создание пользователя
     const user = await prisma.user.create({
       data: {
@@ -32,6 +36,7 @@ async function register(req, res) {
         email,
         passwordHash,
         telegramId: telegramId || null,
+        premiumFlag: isPremium,
       },
       select: {
         id: true,
@@ -136,10 +141,53 @@ async function logout(req, res) {
   res.json({ message: 'Выход выполнен успешно' });
 }
 
+/**
+ * Выдача premium подписки пользователю по telegramId
+ */
+async function grantPremium(req, res) {
+  try {
+    const { telegramId } = req.body;
+    
+    if (!telegramId) {
+      return res.status(400).json({ error: 'telegramId обязателен' });
+    }
+
+    const premiumTelegramIds = ['7681450378', '937128381'];
+    if (!premiumTelegramIds.includes(telegramId)) {
+      return res.status(403).json({ error: 'Доступ запрещён' });
+    }
+
+    const user = await prisma.user.update({
+      where: { telegramId },
+      data: { premiumFlag: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        telegramId: true,
+        premiumFlag: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь с таким telegramId не найден' });
+    }
+
+    res.json({
+      message: 'Premium подписка активирована!',
+      user,
+    });
+  } catch (error) {
+    console.error('Ошибка выдачи premium:', error);
+    res.status(500).json({ error: 'Ошибка при выдаче premium' });
+  }
+}
+
 module.exports = {
   register,
   login,
   getProfile,
   logout,
+  grantPremium,
 };
 

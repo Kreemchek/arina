@@ -11,24 +11,38 @@ export const AuthProvider = ({ children }) => {
 
   // Загрузка пользователя при монтировании
   useEffect(() => {
-    const loadUser = () => {
+    const loadUser = async () => {
       const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
       
       if (token && savedUser) {
-        setUser(JSON.parse(savedUser));
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        
+        // Проверка premium статуса
+        if (!userData.premiumFlag && router.pathname !== '/login' && router.pathname !== '/register') {
+          router.push('/login?premium=required');
+        }
       }
       setLoading(false);
     };
 
     loadUser();
-  }, []);
+  }, [router]);
 
   // Вход
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password });
       const { token, user: userData } = response.data;
+      
+      // Проверка premium статуса
+      if (!userData.premiumFlag) {
+        return {
+          success: false,
+          error: 'Требуется премиум подписка для доступа к приложению',
+        };
+      }
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -45,10 +59,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Регистрация
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, telegramId) => {
     try {
-      const response = await authAPI.register({ name, email, password });
+      const response = await authAPI.register({ name, email, password, telegramId });
       const { token, user: userData } = response.data;
+      
+      // Проверка premium статуса
+      if (!userData.premiumFlag) {
+        return {
+          success: false,
+          error: 'Требуется премиум подписка для доступа к приложению. Обратитесь к администратору.',
+        };
+      }
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));

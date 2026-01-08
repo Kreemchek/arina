@@ -6,12 +6,13 @@ const {
   deleteHabit,
   completeHabit,
 } = require('../controllers/habitsController');
-const { authenticateUser } = require('../middleware/auth');
+const { authenticateUser, checkPremium } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Все маршруты требуют аутентификации
+// Все маршруты требуют аутентификации и премиум подписку
 router.use(authenticateUser);
+router.use(checkPremium);
 
 /**
  * GET /api/habits

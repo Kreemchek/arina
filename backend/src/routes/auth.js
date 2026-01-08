@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { register, login, getProfile, logout } = require('../controllers/authController');
+const { register, login, getProfile, logout, grantPremium } = require('../controllers/authController');
 const { authenticateUser } = require('../middleware/auth');
 
 const router = express.Router();
@@ -43,6 +43,12 @@ router.get('/profile', authenticateUser, getProfile);
  * Выход пользователя
  */
 router.post('/logout', authenticateUser, logout);
+
+/**
+ * POST /api/auth/grant-premium
+ * Выдача premium подписки по telegramId
+ */
+router.post('/grant-premium', grantPremium);
 
 module.exports = router;
 

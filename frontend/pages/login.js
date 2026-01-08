@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useAuth } from '../utils/AuthContext';
-import { FiMail, FiLock, FiHeart } from 'react-icons/fi';
+import { FiMail, FiLock, FiHeart, FiAward } from 'react-icons/fi';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [premiumRequired, setPremiumRequired] = useState(false);
   const { login } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.premium === 'required') {
+      setPremiumRequired(true);
+    }
+  }, [router.query]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +49,17 @@ export default function Login() {
 
         {/* Форма входа */}
         <div className="card">
+          {premiumRequired && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg mb-4">
+              <div className="flex items-start">
+                <FiAward className="text-yellow-600 text-xl mr-2 mt-0.5" />
+                <div>
+                  <p className="font-medium mb-1">Требуется премиум подписка</p>
+                  <p className="text-sm">Для доступа к приложению необходима премиум подписка. Обратитесь к администратору.</p>
+                </div>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">

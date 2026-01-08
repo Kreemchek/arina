@@ -1,4 +1,5 @@
 const { verifyToken } = require('../utils/jwt');
+const prisma = require('../utils/prisma');
 
 /**
  * Middleware для проверки аутентификации пользователя
@@ -18,9 +19,19 @@ async function authenticateUser(req, res, next) {
     // Проверяем токен
     const decoded = verifyToken(token);
     
+    // Получаем пользователя из БД для проверки premium
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true, email: true, premiumFlag: true }
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Пользователь не найден' });
+    }
+    
     // Добавляем данные пользователя в request
-    req.userId = decoded.userId;
-    req.user = decoded;
+    req.userId = user.id;
+    req.user = { ...decoded, premiumFlag: user.premiumFlag };
     
     next();
   } catch (error) {
@@ -29,16 +40,15 @@ async function authenticateUser(req, res, next) {
 }
 
 /**
- * Middleware для проверки премиум статуса (заглушка)
+ * Middleware для проверки премиум статуса
+ * Требует премиум подписку для доступа
  */
 async function checkPremium(req, res, next) {
-  // Здесь будет проверка премиум статуса
-  // Пока пропускаем всех
-  if (process.env.PREMIUM_ENABLED === 'true') {
-    // Проверка премиум статуса из БД
-    // if (!req.user.premiumFlag) {
-    //   return res.status(403).json({ error: 'Требуется премиум подписка' });
-    // }
+  // Проверяем premium статус из БД
+  if (!req.user || !req.user.premiumFlag) {
+    return res.status(403).json({ 
+      error: 'Требуется премиум подписка для доступа к приложению' 
+    });
   }
   next();
 }

@@ -14,6 +14,10 @@ export default function Layout({ children }) {
     if (!loading && !user && !isPublicPage) {
       router.push('/login');
     }
+    // Проверка premium статуса
+    if (!loading && user && !user.premiumFlag && !isPublicPage) {
+      router.push('/login?premium=required');
+    }
   }, [user, loading, router, isPublicPage]);
 
   if (loading) {

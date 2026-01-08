@@ -37,6 +37,12 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    if (error.response?.status === 403) {
+      // Premium required - редиректим на логин с сообщением
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login?premium=required';
+      }
+    }
     return Promise.reject(error);
   }
 );
