@@ -14,7 +14,7 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:bot": "cd bot && npm run dev",
-    "build": "cd frontend && npm run build && cd ../backend && npm run build"
+    "build": "cd frontend && npm run build"
   },
   "keywords": [
     "personal-assistant",

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../utils/AuthContext';
 import { progressAPI, paymentsAPI } from '../utils/api';
-import { FiUser, FiLogOut, FiDownload, FiCrown } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiDownload, FiAward } from 'react-icons/fi';
 import jsPDF from 'jspdf';
 
 export default function Profile() {
@@ -142,7 +142,7 @@ export default function Profile() {
         {!user?.premiumFlag && (
           <div className="card mb-6 bg-gradient-to-br from-pastel-lavender to-pastel-purple">
             <div className="flex items-start gap-4">
-              <FiCrown className="text-yellow-500 text-3xl flex-shrink-0" />
+              <FiAward className="text-yellow-500 text-3xl flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-gray-800 mb-2">
                   Разблокируйте Премиум
