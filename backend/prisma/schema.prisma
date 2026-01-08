@@ -107,7 +107,7 @@ model Progress {
   completedHabits   Json     @default("[]") @map("completed_habits") // массив ID привычек
   completedGoals    Json     @default("[]") @map("completed_goals")  // массив ID целей
   moodScore         Int      @default(5) @map("mood_score")
-  notes             String?  @db.Text
+  notes             String?
   createdAt         DateTime @default(now()) @map("created_at")
 
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)

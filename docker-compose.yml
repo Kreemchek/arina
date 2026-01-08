@@ -2,10 +2,9 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:15
     container_name: assistant_db
     environment:
-      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: assistant_db
     ports:
